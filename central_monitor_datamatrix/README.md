@@ -33,16 +33,17 @@ pip install -r requirements.txt
 
 ## 実行手順（最小動作確認）
 
-1. **generator起動（テストHL7送信）**
-   ```bash
-   cd src
-   python generator.py --host 127.0.0.1 --port 2575 --interval 1
-   ```
-2. **receiver起動（HL7受信→monitor_cache更新）**
+1. **receiver起動（HL7受信→monitor_cache更新）**
    ```bash
    cd src
    python hl7_receiver.py --host 0.0.0.0 --port 2575 --cache monitor_cache.json
    ```
+2. **generator起動（テストHL7送信）**
+   ```bash
+   cd src
+   python generator.py --host 127.0.0.1 --port 2575 --interval 1
+   ```
+   `send failed` が出る場合は、receiver がまだ起動していない/ポートが違う可能性があります。
 3. **monitor起動（GUI表示＋右下DataMatrix）**
    ```bash
    cd src
