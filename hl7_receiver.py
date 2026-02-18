@@ -258,21 +258,20 @@ def run_receiver_service(host: str, port: int, cache_path: str):
 
 
 if __name__ == "__main__":
-    import argparse
-    
-    logging.basicConfig(level=logging.INFO)
-    
-    parser = argparse.ArgumentParser(description='HL7 Receiver')
-    parser.add_argument('--mode', choices=['tcp', 'file', 'service'], default='service',
-                       help='Receiver mode')
-    parser.add_argument('--host', default='0.0.0.0')
-    parser.add_argument('--port', type=int, default=2575)
-    parser.add_argument('--cache', default='monitor_cache.json')
+    parser = argparse.ArgumentParser(description="HL7 Receiver")
+    parser.add_argument(
+        "--mode",
+        choices=["tcp", "service"],
+        default="service",
+        help="tcp: latest.json更新モード / service: monitor_cache.json更新モード",
+    )
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=2575)
+    parser.add_argument("--latest-file", default="latest.json")
+    parser.add_argument("--cache", default="monitor_cache.json")
     args = parser.parse_args()
 
-    if args.mode == 'tcp':
-        test_tcp_receiver()
-    elif args.mode == 'service':
-        run_receiver_service(args.host, args.port, args.cache)
+    if args.mode == "tcp":
+        run_server(args.host, args.port, args.latest_file)
     else:
-        test_file_watcher()
+        run_receiver_service(args.host, args.port, args.cache)
