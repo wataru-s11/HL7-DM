@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import random
 import time
 from datetime import datetime
 
 from hl7_sender import send_mllp_message
+
+
+logger = logging.getLogger(__name__)
 
 
 def build_message(bed: str, msg_id: int) -> str:
@@ -29,14 +33,29 @@ def main() -> None:
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=2575)
     ap.add_argument("--interval", type=float, default=1.0)
+    ap.add_argument("--count", type=int, default=-1, help="送信ループ回数(-1で無限)")
     args = ap.parse_args()
+
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
     msg_id = 1
     beds = ["BED01", "BED02"]
-    while True:
+    loop = 0
+    while args.count < 0 or loop < args.count:
         for bed in beds:
-            send_mllp_message(args.host, args.port, build_message(bed, msg_id))
+            ok = send_mllp_message(args.host, args.port, build_message(bed, msg_id))
+            if ok:
+                logger.info("sent message_id=MSG%06d bed=%s", msg_id, bed)
+            else:
+                logger.warning(
+                    "send failed message_id=MSG%06d bed=%s (receiver not reachable at %s:%d)",
+                    msg_id,
+                    bed,
+                    args.host,
+                    args.port,
+                )
             msg_id += 1
+        loop += 1
         time.sleep(args.interval)
 
 
